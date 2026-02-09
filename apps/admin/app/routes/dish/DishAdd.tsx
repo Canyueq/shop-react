@@ -6,7 +6,8 @@ type DishAddType = {
 const DishAdd = (params:DishAddType) => {
   const {onOk,onCancel} = params
   const {form} = Form.useForm();
-  const onFinish = () => {
+  const onFinish = async(values) => {
+    await add(values)
     onOk()
   }
   return <Form
@@ -15,9 +16,6 @@ const DishAdd = (params:DishAddType) => {
            closeIcon={false}
            footer={null}
            >
-        <Form.Item name="id" hidden={true}>
-      <Input disabled/>
-    </Form.Item>
     <Form.Item name="name" label="菜品名称">
       <Input placeholder="请输入菜品名称"/>
     </Form.Item>
