@@ -1,0 +1,7 @@
+import {Modal} from "antd";
+export function DishShow(){
+  return (
+    <Modal>
+    </Modal>
+  )
+}
