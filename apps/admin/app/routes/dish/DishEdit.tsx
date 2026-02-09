@@ -6,7 +6,8 @@ type DishAddType = {
 const DishEdit = (params:DishAddType) => {
   const {onOk,onCancel} = params
   const {form} = Form.useForm();
-  const onFinish = () => {
+  const onFinish = (values) => {
+    await update(values)
     onOk()
   }
   return <Form
