@@ -77,6 +77,10 @@ const Dish = () => {
       pagination={
         current:{pagination.page}
         pageSize:{pagination.pageSize}
+        onChange:(current,pageSize) => {
+          changePage(current)
+          changeSize(pageSize)
+        }
       }
       />
   </>;
