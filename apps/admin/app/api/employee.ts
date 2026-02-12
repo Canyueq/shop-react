@@ -5,6 +5,7 @@ import type {
   EditEmployee,
   EmployeePaginaitonReq,
 } from "app/types/api/employee";
+
 export const login = (data: EmployeeLoginReq) => {
   return request.post("/employee/login", data);
 };

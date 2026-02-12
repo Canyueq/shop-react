@@ -151,7 +151,7 @@ const Employee = () => {
   return (
     <>
       <div>员工管理</div>
-      <Space style={{ justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
         <Space>
           <span>员工姓名</span>
           <Input
@@ -163,7 +163,7 @@ const Employee = () => {
             搜索
           </Button>
         </Space>
-        <div style={{ marginLeft: "300px" }}>
+        <div>
           <Button
             onClick={() => {
               setTitle("新增");
@@ -173,7 +173,7 @@ const Employee = () => {
             新增
           </Button>
         </div>
-      </Space>
+      </div>
       <EmployeeShow open={open} onClose={close} title={title!}>
         {title === "新增" ? (
           <EmployeeAdd

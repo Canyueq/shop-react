@@ -8,21 +8,19 @@ export default [
   layout("routes/layout.tsx", [
     // ← 移除 .tsx
     route("/", "routes/home.tsx"), // ← 首页
-    route("/category", "routes/categoty/route.tsx"),
+    //模拟试卷
+    route("/test", "routes/test/route.tsx"),
     route("/demo", "routes/demo/route.tsx"),
     route("/order", "routes/order/route.tsx"),
     route("/statistics", "routes/statistics/route.tsx"),
 
-    // ========== 菜品管理 ==========
-    route("/dish", "routes/dish/route.tsx"), // 列表页
-
-    // ========== 员工管理 ==========
-    route("/employee", "routes/employee/route.tsx"), // 列表页
-
     // ========== 套餐管理 ==========
     route("/setmeal", "routes/setmeal/route.tsx"), // 列表页
-
-    //模拟试卷
-    route("/test", "routes/test/route.tsx"),
+    // ========== 菜品管理 ==========
+    route("/dish", "routes/dish/route.tsx"), // 列表页
+    //分类管理
+    route("/category", "routes/categoty/route.tsx"),
+    // ========== 员工管理 ==========
+    route("/employee", "routes/employee/route.tsx"), // 列表页
   ]),
 ] satisfies RouteConfig;

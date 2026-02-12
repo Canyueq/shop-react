@@ -6,13 +6,12 @@ const token = useUserStore.getState().token;
 const request = axios.create({
   baseURL: "/api",
   timeout: 60000,
-  headers: { "X-Custom-Header": "foobar" },
   withCredentials: true,
 });
 request.interceptors.request.use(
   (config) => {
     config.headers.token = token;
-    // console.log("config", config);
+    console.log("config", config);
     return config;
   },
   (error) => {
@@ -25,7 +24,7 @@ request.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    console.log(error);
+    console.log("error", error);
     if (error.response.status === 401) {
       localStorage.removeItem("adminToken");
       // 2. 提示 + 延迟跳转（确保提示能看到）

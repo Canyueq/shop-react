@@ -1,4 +1,5 @@
 import type { AxiosResponse } from "axios";
+import type { UploadFile } from "antd";
 
 //基础响应类型
 export interface BaseRes<T> extends AxiosResponse {
@@ -20,9 +21,8 @@ export interface PaginationReq<T> {
 }
 //基础展示组件类型
 export interface ShowComponent {
-  title: string;
   open: boolean;
-  onCancel?: () => void;
+  title: string;
   children: React.ReactNode;
 }
 //基础分页响应类型
@@ -34,3 +34,16 @@ export interface BasePaginationRes<T> {
 export type PaginationRes<T> = BaseRes<BasePaginationRes<T>>;
 //void函数
 export type VoidFunc = () => void;
+//阿里云OSS上传
+export interface OSSDataType {
+  dir: string;
+  expire: string;
+  host: string;
+  accessId: string;
+  policy: string;
+  signature: string;
+}
+export interface AliyunOSSUploadProps {
+  value?: UploadFile[];
+  onChange?: (fileList: UploadFile[]) => void;
+}

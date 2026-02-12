@@ -1,15 +1,10 @@
-import {Modal} from "antd";
-type DishShowType = {
-  onOk:() => void
-  children:React.Node
-}
-export function DishShow(params:DishShowType){
-const {onOk,children} = params
+import { Modal } from "antd";
+import type { ShowComponent } from "app/types/global";
+export function DishShow(params: ShowComponent) {
+  const { open, title, children } = params;
   return (
-    <Modal
-      closeIcon={false}
-    >
+    <Modal open={open} title={title} closeIcon={false} footer={null}>
       {children}
     </Modal>
-  )
+  );
 }

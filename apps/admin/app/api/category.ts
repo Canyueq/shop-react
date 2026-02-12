@@ -21,3 +21,6 @@ export const addCategory = (data: CategoryTableType) => {
 export const update = (data: CategoryTableType) => {
   return request.put("/category", {}, { params: data });
 };
+export const getByType = (type: number) => {
+  return request.get("/category/list", { params: { type } });
+};

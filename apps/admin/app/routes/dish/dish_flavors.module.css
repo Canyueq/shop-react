@@ -1,0 +1,7 @@
+.flavorContainer {
+  display: flex;
+  flex-wrap: wrap; /* 允许换行 */
+  gap: 8px; /* 标签之间的间距 */
+  align-items: center; /* 垂直居中对齐 */
+  padding: 4px 0; /* 上下内边距，避免换行后紧贴 */
+}
