@@ -1,37 +1,48 @@
 import { Space, Button, Table, Input, Select } from "antd";
-import { setStatus, update } from "app/api/dish";
+import { getById, setStatus, update } from "app/api/dish";
 import { deleteById, page } from "app/api/dish";
 import { usePagination } from "app/hooks/usePagination";
 import type { DishPage, DishPageRes } from "app/types/api/dish";
-import { useState } from "react";
-import type Category from "../categoty/route";
+import { useEffect, useState } from "react";
 import { DishShow } from "./DishShow";
 import DishAdd from "./DishAdd";
 import DishEdit from "./DishEdit";
+import type { CategoryTableType } from "app/types/routes/category";
+import { getByType } from "app/api/category";
+import type { TableColumnsType, TableProps } from "antd";
+import { formatDateArray } from "app/utils/getFormatTime";
+type ListItem = { label: string; value: number };
 const Dish = () => {
+  let options: ListItem[] = [];
+  const [selectionType, setSelectionType] = useState<"checkbox" | "radio">(
+    "checkbox",
+  );
   const [selection, setSelection] = useState<DishType>();
+  const [selections, setSelections] = useState<DishType[]>();
   const [open, setOpen] = useState<boolean>();
   const { pagination, changePage, changeSize, changeArgs } =
     usePagination<DishPage>();
   const [res, SetRes] = useState<DishPageRes>();
   const [title, setTitle] = useState<string>("新建菜品");
-  const columns = [
+  const [categoryList, setCategoryList] = useState<ListItem[]>();
+  const columns: any = [
     {
       title: "菜品名称", // antd Table 列配置用 title 而非 label
       dataIndex: "name", // antd Table 用 dataIndex 而非 value
       key: "name",
+      fixed: "start",
     },
     {
       title: "图片",
-      dataIndex: "img",
-      key: "img",
+      dataIndex: "image",
+      key: "image",
       render: (img: string) =>
         img ? <img src={img} width="50" alt="菜品" /> : "无图片",
     },
     {
       title: "菜品分类",
-      dataIndex: "category",
-      key: "category",
+      dataIndex: "categoryName",
+      key: "categoryName",
     },
     {
       title: "售价",
@@ -53,16 +64,19 @@ const Dish = () => {
       title: "最后操作",
       dataIndex: "updateTime",
       key: "updateTime",
+      render: (updateTime: number[]) => <>{formatDateArray(updateTime)}</>,
     },
     {
       title: "操作",
       key: "operation", // 避免与 name 重复
+      fixed: "end",
       render: (selection: DishType) => (
-        <Space size="small">
+        <Space>
           <Button
             variant="link"
             color="blue"
             onClick={() => {
+              setTitle("修改菜品");
               setSelection(selection);
               handleEdit(selection);
             }}
@@ -71,9 +85,8 @@ const Dish = () => {
           </Button>
           <Button
             variant="link"
-            color="blue"
+            color="red"
             onClick={() => {
-              setTitle("修改菜品");
               handleDelete(selection.id);
             }}
           >
@@ -82,7 +95,12 @@ const Dish = () => {
           <Button
             variant="link"
             color={selection.status === 1 ? "red" : "green"}
-            onClick={() => handleStatusToggle(selection.status, selection.id)}
+            onClick={() =>
+              handleStatusToggle(
+                (selection.status = selection.status === 1 ? 0 : 1),
+                selection.id,
+              )
+            }
           >
             {selection.status === 1 ? "停售" : "启售"}
           </Button>
@@ -93,17 +111,29 @@ const Dish = () => {
   const handleCancel = () => {
     setOpen(false);
   };
-  const handleDelete = async (id: number) => {
-    await deleteById(id);
+  const handleDelete = async (id?: number) => {
+    console.log("id", id);
+    if (id) {
+      await deleteById(id.toString());
+      getList();
+      return;
+    }
+    const ids = selections?.map((item) => item.id).join(",");
+    console.log(ids);
+    if (!ids) return;
+    await deleteById(ids);
+    getList();
   };
-  const handleEdit = (data: DishType) => {
-    setSelection(data);
+  const handleEdit = async (data: DishType) => {
+    await getById(data.id).then((res) => setSelection(res.data));
     setOpen(true);
   };
   const handleStatusToggle = async (status: number, id: number) => {
     await setStatus(status, id);
+    getList();
   };
   const handleSubmit = () => {
+    getList();
     setOpen(false);
   };
   const getList = async () => {
@@ -111,6 +141,38 @@ const Dish = () => {
       SetRes(res);
     });
   };
+  const rowSelection: TableProps<any>["rowSelection"] = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
+      console.log(
+        `selectedRowKeys: ${selectedRowKeys}`,
+        "selectedRows: ",
+        selectedRows,
+      );
+      setSelections(selectedRows);
+    },
+    getCheckboxProps: (record: any) => ({
+      disabled: record.name === "Disabled User", // Column configuration not to be checked
+      name: record.name,
+    }),
+  };
+  const getCategory = async () => {
+    await getByType(1).then((res) => {
+      const data: CategoryTableType[] = res.data;
+      console.log(data);
+      data.forEach((item) => {
+        let listItem: ListItem = { label: "", value: 0 };
+        listItem.label = item.name || "";
+        listItem.value = item.id || 0;
+        options.push(listItem);
+      });
+      setCategoryList(options);
+      console.log(options);
+    });
+  };
+  useEffect(() => {
+    getCategory();
+    getList();
+  }, [pagination]);
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -130,11 +192,11 @@ const Dish = () => {
           <div>菜品分类：</div>
           <Select<number>
             placeholder="请选择"
-            options={[{ value: 1, label: "" }]}
+            options={categoryList}
             onSelect={(value) => {
               const args = {
                 ...pagination,
-                category: value,
+                categoryId: value,
               };
               changeArgs(args);
             }}
@@ -144,7 +206,7 @@ const Dish = () => {
             placeholder="请选择"
             options={[
               { value: 1, label: "启售" },
-              { value: 2, label: "停售" },
+              { value: 0, label: "停售" },
             ]}
             onSelect={(value) => {
               const args = {
@@ -157,7 +219,7 @@ const Dish = () => {
           <Button onClick={() => getList()}>查询</Button>
         </Space>
         <div>
-          <Button variant="link" color="red">
+          <Button variant="link" color="red" onClick={() => handleDelete()}>
             批量删除
           </Button>
           <Button
@@ -172,7 +234,13 @@ const Dish = () => {
       </div>
       <Table
         columns={columns}
+        dataSource={res?.data.records}
+        rowKey={"id"}
+        scroll={{ y: 420 }}
+        rowSelection={{ type: selectionType, ...rowSelection }}
         pagination={{
+          total: res?.data.total,
+          showSizeChanger: true,
           current: pagination.page,
           pageSize: pagination.pageSize,
           onChange: (current, pageSize) => {
@@ -186,7 +254,11 @@ const Dish = () => {
           {title === "新建菜品" ? (
             <DishAdd onOK={handleSubmit} onCancel={handleCancel} />
           ) : (
-            <DishEdit onOK={handleSubmit} onCancel={handleCancel} />
+            <DishEdit
+              onOK={handleSubmit}
+              onCancel={handleCancel}
+              data={selection}
+            />
           )}
         </DishShow>
       )}

@@ -1,7 +1,7 @@
 type DishType = {
   id: number;
   name: string;
-  img: string;
+  image: string;
   price: number;
   status: number;
   updateTime: number[];

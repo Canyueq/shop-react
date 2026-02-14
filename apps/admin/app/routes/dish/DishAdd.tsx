@@ -21,10 +21,12 @@ const DishAdd = (params: DishAddType) => {
   const [categoryList, setCategoryList] = useState<ListItem[]>();
   const [flavors, setFlavors] = useState<DishFlavor[]>([]);
   const onFinish = async (values: DishReq) => {
+    console.log("finish");
     values.status = 1;
-    if (!url) return;
-    console.log(url);
-    values.image = url[0];
+    if (url) {
+      console.log(url);
+      values.image = url[0];
+    }
     await add(values);
     onOK();
   };
@@ -40,7 +42,7 @@ const DishAdd = (params: DishAddType) => {
         options.push(listItem);
       });
       setCategoryList(options);
-      console.log(options);
+      console.log("options", options);
     });
   };
   const handleFlavors = (_: any, t: any) => {

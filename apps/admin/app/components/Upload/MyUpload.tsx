@@ -7,7 +7,7 @@ import {
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons"; // 可选：加上传图标更直观
 import { upload } from "app/api/common";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const MyUpload = (params: {
   imageUrls: string[];
@@ -68,7 +68,20 @@ const MyUpload = (params: {
       return true;
     },
   };
-
+  const generateUid = (url: string) => `img-${url}-${Date.now()}`;
+  useEffect(() => {
+    // 仅在弹窗打开、且有图片地址时处理回显
+    if (imageUrls) {
+      // 将imageUrls转换为Upload要求的fileList格式
+      const newFileList = imageUrls.map((url) => ({
+        uid: generateUid(url), // 唯一标识（必须，Antd用来区分不同文件）
+        url: url, // 图片地址（核心：用于回显预览）
+        status: "done", // 标记为“已完成”状态，避免显示上传中
+        name: url.substring(url.lastIndexOf("/") + 1), // 可选：显示图片名称
+      }));
+      setFileList(newFileList as any);
+    }
+  }, []);
   return (
     <Upload {...uploadProps}>
       <Button icon={<UploadOutlined />}>点击上传</Button>
