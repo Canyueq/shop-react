@@ -4,7 +4,7 @@ import type { ShowComponent } from "app/types/global";
 const SetmealShow = (params: ShowComponent) => {
   const { open, title, children } = params;
   return (
-    <Modal open={open} title={title}>
+    <Modal open={open} title={title} closeIcon={null} footer={null}>
       {children}
     </Modal>
   );

@@ -10,91 +10,36 @@ import {
   Row,
   Col,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type SyntheticEvent } from "react";
 import SetmealShow from "./SetmealShow";
 import SetmalAdd from "./SetmealAdd";
 import SetmalEdit from "./SetmealEdit";
 import { usePagination } from "app/hooks/usePagination";
 import type { SetmealTableItem } from "./types/Setmeal";
-import type { SetmealPaginationReq, SetmealPaginationRes } from "./types/api";
+import type {
+  SetmealAddReq,
+  SetmealPage,
+  SetmealPaginationReq,
+  SetmealPaginationRes,
+} from "./types/api";
 import type { ColumnsType } from "antd/es/table";
-import { deleteByIds, page } from "app/api/setmeal";
+import { deleteByIds, page, status } from "app/api/setmeal";
 import type { TableRowSelection } from "antd/es/table/interface";
-const mockTabelList = [
-  {
-    id: 1,
-    name: "string", // 套餐名称
-    image: "string", // 图片地址
-    categoryName: "string", // 套餐分类
-    price: 11, // 套餐价格
-    status: 1, // 0-停售 1-启售
-    updateTime: "string", // 最后操作时间
-  },
-  {
-    id: 2,
-    name: "string", // 套餐名称
-    image: "string", // 图片地址
-    categoryName: "string", // 套餐分类
-    price: 11, // 套餐价格
-    status: 1, // 0-停售 1-启售
-    updateTime: "string", // 最后操作时间
-  },
-  {
-    id: 3,
-    name: "string", // 套餐名称
-    image: "string", // 图片地址
-    categoryName: "string", // 套餐分类
-    price: 11, // 套餐价格
-    status: 1, // 0-停售 1-启售
-    updateTime: "string", // 最后操作时间
-  },
-  {
-    id: 4,
-    name: "string", // 套餐名称
-    image: "string", // 图片地址
-    categoryName: "string", // 套餐分类
-    price: 11, // 套餐价格
-    status: 1, // 0-停售 1-启售
-    updateTime: "string", // 最后操作时间
-  },
-  {
-    id: 5,
-    name: "string", // 套餐名称
-    image: "string", // 图片地址
-    categoryName: "string", // 套餐分类
-    price: 11, // 套餐价格
-    status: 1, // 0-停售 1-启售
-    updateTime: "string", // 最后操作时间
-  },
-  {
-    id: 6,
-    name: "string", // 套餐名称
-    image: "string", // 图片地址
-    categoryName: "string", // 套餐分类
-    price: 11, // 套餐价格
-    status: 1, // 0-停售 1-启售
-    updateTime: "string", // 最后操作时间
-  },
-  {
-    id: 7,
-    name: "string", // 套餐名称
-    image: "string", // 图片地址
-    categoryName: "string", // 套餐分类
-    price: 11, // 套餐价格
-    status: 1, // 0-停售 1-启售
-    updateTime: "string", // 最后操作时间
-  },
-];
+import { formatDateArray } from "app/utils/getFormatTime";
+import { getByType } from "app/api/category";
+import type { CategoryTableType } from "app/types/routes/category";
 const addDishtype = () => {
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("新增套餐");
   const { pagination, changePage, changeSize, changeArgs } =
-    usePagination<SetmealPaginationReq>();
+    usePagination<SetmealPage>();
   const [res, setRes] = useState<SetmealPaginationRes>();
-  const [selection, setSelection] = useState<SetmealTableItem[]>();
+  const [selection, setSelection] = useState<SetmealAddReq[]>();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>();
+  const [categoryOptions, setCategoryOptions] = useState();
   const noImg = "";
-  const columns: ColumnsType<SetmealTableItem> = [
+  const columns: ColumnsType<SetmealAddReq> = [
     // 1. 选择列（对应原type="selection"）
     // 2. 套餐名称列
     {
@@ -124,8 +69,8 @@ const addDishtype = () => {
     // 4. 套餐分类列
     {
       title: "套餐分类",
-      dataIndex: "categoryName",
-      key: "categoryName",
+      dataIndex: "categoryId",
+      key: "categoryId",
     },
     // 5. 套餐价列（价格格式化）
     {
@@ -140,14 +85,11 @@ const addDishtype = () => {
     {
       title: "售卖状态",
       key: "status", // 非数据列需要手动指定key
-      render: (_: any, record: SetmealTableItem) => {
-        const isStop = record.status === 0;
-        return (
-          <div className={`tableColumn-status ${isStop ? "stop-use" : ""}`}>
-            {isStop ? "停售" : "启售"}
-          </div>
-        );
-      },
+      render: (_: any, record: SetmealAddReq) => (
+        <div style={{ color: record.status === 1 ? "green" : "red" }}>
+          {record.status === 1 ? "启售" : "停售"}
+        </div>
+      ),
     },
     // 7. 最后操作时间列
     {
@@ -155,7 +97,7 @@ const addDishtype = () => {
       dataIndex: "updateTime",
       key: "updateTime",
       // 如果你需要格式化时间，取消下面注释并引入moment
-      // render: (updateTime: string) => moment(updateTime).format('YYYY-MM-DD h:m:s'),
+      render: (updateTime: number[]) => formatDateArray(updateTime),
     },
     // 8. 操作列
     {
@@ -163,35 +105,31 @@ const addDishtype = () => {
       key: "action",
       width: 250,
       align: "center" as const, // 对应原align="center"
-      render: (_: any, record: SetmealTableItem) => {
+      render: (_: any, record: SetmealAddReq) => {
         const isStop = record.status === 0;
         return (
           <Space size="small">
-            {" "}
             {/* Antd的Space替代原inline布局 */}
             {/* 修改按钮 */}
             <Button
-              type="text"
-              size="small"
-              className="blueBug"
+              variant="link"
+              color="blue"
               onClick={() => handleEdit(record)}
             >
               修改
             </Button>
             {/* 删除按钮 */}
             <Button
-              type="text"
-              size="small"
-              className="delBut"
+              variant="link"
+              color="red"
               onClick={() => handleDelte("单删", record.id as any)}
             >
               删除
             </Button>
             {/* 启售/停售按钮 */}
             <Button
-              type="text"
-              size="small"
-              className={`non ${isStop ? "blueBug" : "delBut"}`}
+              variant="link"
+              color={record.status === 1 ? "red" : "green"}
               onClick={() => handleStatus(record)}
             >
               {isStop ? "启售" : "停售"}
@@ -201,11 +139,18 @@ const addDishtype = () => {
       },
     },
   ];
-  const rowSelection: TableRowSelection<SetmealTableItem> = {};
-  const table: TableProps<SetmealTableItem> = {
+  const rowSelection: TableRowSelection<SetmealAddReq> = {
+    selectedRowKeys,
+    onChange: (e) => {
+      setSelectedRowKeys(e);
+      // console.log(selectedRowKeys);
+    },
+  };
+  const table: TableProps<SetmealAddReq> = {
     rowSelection: { ...rowSelection },
     columns: columns,
-    dataSource: mockTabelList,
+    rowKey: "id",
+    dataSource: res?.data.records,
     scroll: { y: 420 },
     pagination: {
       current: pagination.page,
@@ -215,24 +160,74 @@ const addDishtype = () => {
       },
     },
   };
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // console.log("e", typeof e);
+    const args: SetmealPage = {
+      ...pagination,
+      name: e.target.value,
+    };
+    changeArgs(args);
+  };
+  const handleCategorySelect = (e: number) => {
+    // console.log("e", e);
+    const args: SetmealPage = {
+      ...pagination,
+      categoryId: e,
+    };
+    changeArgs(args);
+  };
+  const handleStatusSelect = (e: number) => {
+    // console.log("e", e);
+    const args = {
+      ...pagination,
+      status: e,
+    };
+    changeArgs(args);
+  };
   const handleDelte = async (type: string, ids: number[]) => {
     if (type !== "批量删除") {
       await deleteByIds(ids.toString());
+      getList();
     } else {
       const strIds = ids.map((id) => id).join(",");
+      console.log("批量删除", strIds);
       await deleteByIds(strIds);
+      getList();
     }
   };
-  const handleEdit = (record: SetmealTableItem) => {};
-  const handleStatus = (record: SetmealTableItem) => {};
+  const handleEdit = (record: SetmealAddReq) => {
+    setTitle("编辑套餐");
+    setOpen(true);
+    setSelection([record]);
+  };
+  const handleStatus = async (record: SetmealAddReq) => {
+    const data = record.status === 1 ? 0 : 1;
+    await status(data, record.id!).then(() => {
+      getList();
+    });
+  };
   const getList = async () => {
-    // await page(pagination).then((res) => {
-    //   setRes(res);
-    // });
+    await page(pagination).then((res) => {
+      console.log("res", res);
+      setRes(res);
+    });
   };
   useEffect(() => {
     getList();
   }, [pagination]);
+  useEffect(() => {
+    (async () => {
+      await getByType(2).then((res) => {
+        // console.log("category", res);
+        res.data.map((item: any) => {
+          item.value = item.id;
+          item.label = item.name;
+          item.key = item.id;
+        });
+        setCategoryOptions(res.data);
+      });
+    })();
+  }, []);
   return (
     <>
       <Form form={form} layout="vertical">
@@ -245,15 +240,22 @@ const addDishtype = () => {
                 label="套餐名称"
                 style={{ width: "200px" }}
               >
-                <Input placeholder="请输入套餐名称" />
+                <Input
+                  placeholder="请输入套餐名称"
+                  onChange={handleNameChange}
+                />
               </Form.Item>
               <Form.Item
                 layout="horizontal"
-                name="category"
+                name="categoryId"
                 label="套餐分类"
                 style={{ width: "180px" }}
               >
-                <Select placeholder="请选择" />
+                <Select
+                  placeholder="请选择"
+                  options={categoryOptions}
+                  onSelect={handleCategorySelect}
+                />
               </Form.Item>
               <Form.Item
                 layout="horizontal"
@@ -261,10 +263,19 @@ const addDishtype = () => {
                 label="状态"
                 style={{ width: "150px" }}
               >
-                <Select placeholder="请选择" />
+                <Select
+                  placeholder="请选择"
+                  options={[
+                    { label: "启售", value: 1, key: 1 },
+                    { label: "停售", value: 0, key: 0 },
+                  ]}
+                  onSelect={handleStatusSelect}
+                />
               </Form.Item>
               <Form.Item>
-                <Button type="primary">查询</Button>
+                <Button type="primary" onClick={() => getList()}>
+                  查询
+                </Button>
               </Form.Item>
             </Space>
           </Col>
@@ -275,17 +286,24 @@ const addDishtype = () => {
                   type="link"
                   danger
                   onClick={() => {
-                    let ids: number[];
-                    if (!selection) return;
-                    handleDelte(
-                      "批量删除",
-                      (ids = selection?.map((item) => item.id)),
-                    );
+                    const ids: number[] = [];
+                    if (!selectedRowKeys) return;
+                    console.log("click");
+                    selectedRowKeys?.forEach((item) => ids.push(item as any));
+                    handleDelte("批量删除", ids);
                   }}
                 >
                   批量删除
                 </Button>
-                <Button type="primary">新增</Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    setTitle("新增套餐");
+                    setOpen(true);
+                  }}
+                >
+                  新增
+                </Button>
               </Space>
             </Form.Item>
           </Col>
@@ -297,7 +315,7 @@ const addDishtype = () => {
           {title === "新增套餐" ? (
             <SetmalAdd close={() => setOpen(false)} />
           ) : (
-            <SetmalEdit />
+            <SetmalEdit id={selection?.[0].id!} close={() => setOpen(false)} />
           )}
         </SetmealShow>
       )}

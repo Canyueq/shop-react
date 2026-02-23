@@ -19,6 +19,6 @@ export const setStatus = (status: number, id: number) => {
 export const getById = (id: number) => {
   return request.get(`/dish/${id}`);
 };
-export const getByCategoryId = (categoryId: number) => {
-  return request.get("/admin/dish/list", { params: categoryId });
+export const getByCategoryId = (name: string) => {
+  return request.get("/dish/list", { params: { name } });
 };
