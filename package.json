@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cd apps/admin && pnpm dev",
-    "dev:main": "cd apps/main && pnpm dev"
+    "dev": "concurrently \"pnpm dev:admin\" \"pnpm dev:user\"",
+    "dev:admin": "cd apps/admin && pnpm dev",
+    "dev:user": "cd apps/user && pnpm dev:mp-weixin"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +16,8 @@
     "axios": "^1.13.4",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
