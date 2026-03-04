@@ -1,7 +1,9 @@
 import { Links, Meta, Outlet, ScrollRestoration, Scripts } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
-export function meta({}: Route.MetaArgs) {
+import { useEffect } from "react";
+import createWebSocket from "./utils/webSocket";
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "react商城" },
     { name: "description", content: "Welcome to React Router!" },
@@ -39,5 +41,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const webSocket = createWebSocket('/1');
+  useEffect(() => {
+    webSocket.onopen = () => {
+      console.log('连接成功');
+    };
+  }, []);
   return <Outlet />;
 }

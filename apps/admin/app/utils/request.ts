@@ -19,7 +19,7 @@ request.interceptors.request.use(
   },
 );
 request.interceptors.response.use(
-  (response): BaseRes<AxiosResponse> => {
+  (response) => {
     // console.log("响应", response.data);
     return response.data;
   },

@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    // 新增：替代废弃的 importsNotUsedAsValues/preserveValueImports
+    "verbatimModuleSyntax": true,
+    // 核心：识别 uni-app 内置组件/API 的类型
+    "types": ["@dcloudio/types", "vite/client"]
+  },
+  "vueCompilerOptions": {
+    "target": "uni-app",
+    "experimentalDisableTemplateSupport": false
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "exclude": ["node_modules"]
+}

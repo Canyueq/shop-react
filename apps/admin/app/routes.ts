@@ -8,12 +8,9 @@ export default [
   layout("routes/layout.tsx", [
     // ← 移除 .tsx
     route("/", "routes/home.tsx"), // ← 首页
-    //模拟试卷
-    route("/test", "routes/test/route.tsx"),
-    route("/demo", "routes/demo/route.tsx"),
-    route("/order", "routes/order/route.tsx"),
+    route("/dashboard", "routes/dashboard/route.tsx"),
     route("/statistics", "routes/statistics/route.tsx"),
-
+    route("/order", "routes/order/route.tsx"),
     // ========== 套餐管理 ==========
     route("/setmeal", "routes/setmeal/route.tsx"), // 列表页
     // ========== 菜品管理 ==========

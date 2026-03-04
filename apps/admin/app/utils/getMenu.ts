@@ -38,10 +38,11 @@ export function toAntdFormItems(
   // ========== 菜单名称映射（根据你的业务需求配置） ==========
   const menuNameMap: Record<string, string> = {
     "/": "首页",
+    "/dashboard": "工作台",
+    "/statistics": "数据统计",
     "/category": "分类管理",
     "/demo": "演示页面",
     "/order": "订单管理",
-    "/statistics": "数据统计",
     "/login": "登录",
     "/home": "主页",
     "/dish": "菜品管理",

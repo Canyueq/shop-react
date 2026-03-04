@@ -17,4 +17,12 @@ const formatDateArray = (dateArr: number[]): string => {
   // 拼接成 YYYY-MM-DD
   return `${year}-${formattedMonth}-${formattedDay}`;
 };
-export { formatDateArray };
+const formatDate = (timestamp: number): string => {
+  const date = new Date(timestamp);
+  // 获取年/月/日并补零（确保两位）
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+export { formatDateArray, formatDate };

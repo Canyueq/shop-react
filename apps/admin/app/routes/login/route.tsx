@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Space } from "antd";
 import { useNavigate } from "react-router";
 import { login } from "app/api/employee";
@@ -7,6 +7,7 @@ import type {
   EmployeeLoginReq,
 } from "app/types/api/employee";
 import useUserStore from "../../store/userStore";
+import createWebSocket from "app/utils/webSocket";
 
 const layout = {
   labelCol: { span: 8 },
@@ -44,7 +45,6 @@ const App: React.FC = () => {
   const onFill = () => {
     form.setFieldsValue({ username: "admin", password: "123456" });
   };
-
   return (
     <Form
       {...layout}

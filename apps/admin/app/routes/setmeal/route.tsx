@@ -28,7 +28,7 @@ import type { TableRowSelection } from "antd/es/table/interface";
 import { formatDateArray } from "app/utils/getFormatTime";
 import { getByType } from "app/api/category";
 import type { CategoryTableType } from "app/types/routes/category";
-const addDishtype = () => {
+const Dish = () => {
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("新增套餐");
@@ -322,4 +322,4 @@ const addDishtype = () => {
     </>
   );
 };
-export default addDishtype;
+export default Dish;
