@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "concurrently \"pnpm dev:admin\" \"pnpm dev:user\"",
     "dev:admin": "cd apps/admin && pnpm dev",
-    "dev:user": "cd apps/user && pnpm dev:mp-weixin"
+    "dev:user": "cd apps/user && pnpm dev:mp-weixin",
+    "build": "cd apps/admin @@ pnpm build"
   },
   "keywords": [],
   "author": "",
